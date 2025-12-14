@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Traverse – University Ride System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #000;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+    }
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    input, button, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+    }
+    button {
+      background: #000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .card {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+    .danger {
+      background: red;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>TRAVERSE</h1>
+  <p>University Ride System</p>
+</header>
+
+<div class="container">
+
+  <!-- LOGIN / SIGNUP -->
+  <div id="auth" class="card">
+    <h2>Login / Signup</h2>
+    <input id="name" placeholder="Name (signup only)">
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Login</button>
+    <p id="authMsg"></p>
+  </div>
+
+  <!-- STUDENT -->
+  <div id="student" class="card hidden">
+    <h2>Student Portal</h2>
+    <input id="pickup" placeholder="Pickup Location">
+    <input id="dropoff" placeholder="Drop Location">
+    <button onclick="requestRide()">Request Ride</button>
+    <button class="danger" onclick="emergency()">EMERGENCY</button>
+    <h3>My Rides</h3>
+    <ul id="studentRides"></ul>
+  </div>
+
+  <!-- DRIVER -->
+  <div id="driver" class="card hidden">
+    <h2>Driver Portal</h2>
+    <h3>Available Rides</h3>
+    <ul id="driverRides"></ul>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="admin" class="card hidden">
+    <h2>Admin Dashboard</h2>
+
+    <h3>Create Driver / Admin</h3>
+    <input id="uName" placeholder="Name">
+    <input id="uEmail" placeholder="Email">
+    <input id="uPass" placeholder="Password">
+    <select id="uRole">
+      <option value="driver">Driver</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button onclick="createUser()">Create</button>
+
+    <h3>Emergencies</h3>
+    <ul id="emergencyList"></ul>
+  </div>
+
+</div>
+
+<script>
+  const API = "https://YOUR_BACKEND_RENDER_URL"; // CHANGE THIS LATER
+  let token = "";
+
+  function show(role) {
+    document.getElementById("auth").classList.add("hidden");
+    document.getElementById("student").classList.add("hidden");
+    document.getElementById("driver").classList.add("hidden");
+    document.getElementById("admin").classList.add("hidden");
+    document.getElementById(role).classList.remove("hidden");
+  }
+
+  async function signup() {
+    const res = await fetch(API + "/api/auth/signup", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: name.value,
+        email: email.value,
+        password: password.value
+      })
+    });
+    const data = await res.json();
+    document.getElementById("authMsg").innerText = data.error || "Signup successful";
+  }
+
+  async function login() {
+    const res = await fetch(API + "/api/auth/login", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value
+      })
+    });
+    const data = await res.json();
+    if (data.token) {
+      token = data.token;
+      show(data.user.role);
+      if (data.user.role === "student") loadStudent();
+      if (data.user.role === "driver") loadDriver();
+      if (data.user.role === "admin") loadAdmin();
+    } else {
+      authMsg.innerText = data.error;
+    }
+  }
+
+  async function requestRide() {
+    await fetch(API + "/api/rides", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({
+        pickup: pickup.value,
+        dropoff: dropoff.value
+      })
+    });
+    loadStudent();
+  }
+
+  async function loadStudent() {
+    const res = await fetch(API + "/api/rides", {
+      headers: {"Authorization": "Bearer " + token}
+    });
+    const rides = await res.json();
+    studentRides.innerHTML = rides.map(r =>
+      `<li>${r.pickup} → ${r.dropoff} (${r.status})</li>`
+    ).join("");
+  }
+
+  async function loadDriver() {
+    const res = await fetch(API + "/api/rides", {
+      headers: {"Authorization": "Bearer " + token}
+    });
+    const rides = await res.json();
+    driverRides.innerHTML = rides.map(r =>
+      `<li>${r.pickup} → ${r.dropoff}
+        <button onclick="acceptRide('${r._id}')">Accept</button>
+      </li>`
+    ).join("");
+  }
+
+  async function acceptRide(id) {
+    await fetch(API + "/api/rides/" + id + "/accept", {
+      method: "POST",
+      headers: {"Authorization": "Bearer " + token}
+    });
+    loadDriver();
+  }
+
+  async function emergency() {
+    navigator.geolocation.getCurrentPosition(async pos => {
+      await fetch(API + "/api/emergency/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+          description: "Emergency",
+          location: {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          }
+        })
+      });
+      alert("Emergency sent to admin");
+    });
+  }
+
+  async function loadAdmin() {
+    const res = await fetch(API + "/api/emergency", {
+      headers: {"Authorization": "Bearer " + token}
+    });
+    const list = await res.json();
+    emergencyList.innerHTML = list.map(e =>
+      `<li>${e.studentEmail} - ${e.status}</li>`
+    ).join("");
+  }
+
+  async function createUser() {
+    await fetch(API + "/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({
+        name: uName.value,
+        email: uEmail.value,
+        password: uPass.value,
+        role: uRole.value
+      })
+    });
+    alert("User created");
+  }
+</script>
+
+</body>
+</html>
