@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -16,11 +17,12 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
   .then(()=> console.log("MongoDB connected"))
   .catch(err => console.error("Mongo error:", err));
 
-app.use('/api/auth', require('./src/routes/auth'));
-app.use('/api/rides', require('./src/routes/rides'));
-app.use('/api/users', require('./src/routes/users'));
-app.use('/api/emergency', require('./src/routes/emergency'));
-app.use('/api/location', require('./src/routes/location'));
+app.use('/api/auth', require(path.join(__dirname, 'src/routes/auth')));
+app.use('/api/rides', require(path.join(__dirname, 'src/routes/rides')));
+app.use('/api/users', require(path.join(__dirname, 'src/routes/users')));
+app.use('/api/emergency', require(path.join(__dirname, 'src/routes/emergency')));
+app.use('/api/location', require(path.join(__dirname, 'src/routes/location')));
+
 
 app.use(express.static('../frontend'));
 
