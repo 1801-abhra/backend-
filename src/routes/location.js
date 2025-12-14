@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const DriverLocation = require('../models/DriverLocation');
+const DriverLocation = require('../models/driverlocation');
 
 router.post('/update', auth, async (req,res)=>{
   if(req.user.role !== 'driver')
