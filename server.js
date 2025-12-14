@@ -17,11 +17,11 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
   .then(()=> console.log("MongoDB connected"))
   .catch(err => console.error("Mongo error:", err));
 
-app.use('/api/auth', require(path.join(__dirname, 'routes/auth')));
-app.use('/api/rides', require(path.join(__dirname, 'routes/rides')));
-app.use('/api/users', require(path.join(__dirname, 'routes/users')));
-app.use('/api/Emergency', require(path.join(__dirname, 'routes/Emergency')));
-app.use('/api/location', require(path.join(__dirname, 'routes/location')));
+app.use('/api/auth', require(path.join(__dirname, 'src/routes/auth')));
+app.use('/api/rides', require(path.join(__dirname, 'src/routes/rides')));
+app.use('/api/users', require(path.join(__dirname, 'src/routes/users')));
+app.use('/api/Emergency', require(path.join(__dirname, 'src/routes/Emergency')));
+app.use('/api/location', require(path.join(__dirname, 'src/routes/location')));
 
 
 app.use(express.static('../frontend'));
