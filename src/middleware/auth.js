@@ -1,6 +1,9 @@
+const path = require('path');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 
+const User = require(
+  path.join(__dirname, '..', 'models', 'User')
+);
 module.exports = async function(req,res,next){
   const header = req.headers.authorization;
   if(!header) return res.status(401).json({ error: "No token" });

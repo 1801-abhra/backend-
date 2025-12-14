@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const path = require('path');
+const User = require(path.join(__dirname, '..', 'models', 'User')
+);
+
 
 const studentRegex = /^[0-9]{1,10}@juitsolan\\.in$/i;
 
