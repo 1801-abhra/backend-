@@ -25,6 +25,8 @@ app.use('/api/location', require(path.join(__dirname, 'src/routes/location')));
 
 
 app.use(express.static('../frontend'));
+app.get("/",(req,res) => {
+  res.send("Backend is running successfully"); });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, ()=> console.log("Backend running on", PORT));
