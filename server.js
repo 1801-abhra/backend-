@@ -36,7 +36,7 @@ mongoose
 
 
 app.use("/api/auth", require("./src/routes/auth"));
-app.use("/api/rides", require("./src/routes/ride")); 
+app.use("/api/rides", require("./src/routes/rides")); 
 
 
 app.get("/", (req, res) => {
