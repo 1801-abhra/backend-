@@ -130,14 +130,37 @@
 
 <p id="rideStatus"></p>
 
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
+/* ================= CONFIG ================= */
 const API_BASE = "https://traverse-backend-mvdv.onrender.com";
+const socket = io(API_BASE);
 
+/* ================= SOCKET LISTENERS ================= */
+socket.on("connect", () => {
+console.log("Student socket connected:", socket.id);
+});
+
+socket.on("ride:update", (ride) => {
+const statusEl = document.getElementById("rideStatus");
+if (!statusEl) return;
+
+statusEl.innerText = `Ride status: ${ride.status.toUpperCase()}`;
+
+if (ride.status === "accepted") {
+statusEl.style.color = "green";
+} else if (ride.status === "rejected") {
+statusEl.style.color = "red";
+}
+});
+
+/* ================= AUTH ================= */
 async function signup() {
 const name = document.getElementById("name").value.trim();
 const email = document.getElementById("email").value.trim();
 const password = document.getElementById("password").value.trim();
 const role = document.getElementById("role").value;
+
 if (!name || !email || !password) {
 alert("Please fill all fields");
 return;
@@ -151,9 +174,12 @@ body: JSON.stringify({ name, email, password, role })
 });
 
 const data = await res.json();
-alert(data.message || "Signup successful");
+if (!res.ok) return alert(data.error || "Signup failed");
+
+alert("Signup successful. Please login.");
 } catch (err) {
-alert("Signup failed. Try again.");
+alert("Signup error");
+console.error(err);
 }
 }
 
@@ -173,21 +199,13 @@ headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ email, password })
 });
 
-// ✅ IMPORTANT CHECK
-if (!res.ok) {
-const err = await res.json();
-alert(err.error || "Login failed");
-return;
-}
-
 const data = await res.json();
+if (!res.ok) return alert(data.error || "Login failed");
 
-// ✅ SAVE SESSION DATA
 localStorage.setItem("token", data.token);
 localStorage.setItem("role", data.user.role);
-localStorage.setItem("userId", data.user.id);
+localStorage.setItem("userId", data.user._id);
 
-// ✅ ROLE-BASED REDIRECT
 if (data.user.role === "driver") {
 window.location.href = "/driver.html";
 } else {
@@ -195,28 +213,26 @@ document.getElementById("auth").style.display = "none";
 document.getElementById("student").classList.remove("hidden");
 alert("Login successful");
 }
-
 } catch (err) {
-alert("Login failed. Try again.");
+alert("Login error");
 console.error(err);
 }
 }
 
+/* ================= STUDENT: BOOK RIDE ================= */
 async function bookRide() {
 const pickup = document.getElementById("pickupAddress").value.trim();
 const drop = document.getElementById("dropAddress").value.trim();
 
 if (!pickup || !drop) {
-alert("Please enter pickup and drop locations");
+alert("Enter pickup and drop locations");
 return;
 }
 
 try {
 const res = await fetch(`${API_BASE}/api/rides/book`, {
 method: "POST",
-headers: {
-"Content-Type": "application/json"
-},
+headers: { "Content-Type": "application/json" },
 body: JSON.stringify({
 pickup: {
 address: pickup,
@@ -232,13 +248,13 @@ lng: 76.662
 });
 
 const data = await res.json();
+if (!res.ok) return alert(data.message || "Booking failed");
 
 document.getElementById("rideStatus").innerText =
-data.message || "Ride booked successfully";
-
+"Ride status: REQUESTED";
 } catch (err) {
+alert("Ride booking error");
 console.error(err);
-alert("Failed to book ride");
 }
 }
 </script>
