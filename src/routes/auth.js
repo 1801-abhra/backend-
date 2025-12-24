@@ -76,7 +76,7 @@ if (!user) {
 return res.status(401).json({ error: "Invalid email or password" });
 }
 
-const isMatch = await bcrypt.compare(password, user.password);
+const isMatch = await bcrypt.compare(password, user.passwordHash);
 if (!isMatch) {
 return res.status(401).json({ error: "Invalid email or password" });
 }
