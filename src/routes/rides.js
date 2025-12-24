@@ -3,14 +3,41 @@ const router = express.Router();
 const Ride = require("../models/Ride");
 router.post("/book", async (req, res) => {
 try {
-const { studentId, pickup, drop } = req.body;
+const { pickup, drop } = req.body;
 
-if (!studentId || !pickup || !drop) {
+if (
+!pickup ||
+!drop ||
+!pickup.address ||
+!pickup.lat ||
+!pickup.lng ||
+!drop.address ||
+!drop.lat ||
+!drop.lng
+) {
 return res.status(400).json({ message: "Missing ride details" });
 }
 
 const ride = new Ride({
-student: studentId,
+student: null, // temporary (we'll attach logged-in user later)
+pickup,
+drop,
+status: "requested"
+});
+
+await ride.save();
+
+res.json({
+message: "Ride booked successfully",
+ride
+});
+} catch (err) {
+console.error(err);
+res.status(500).json({ message: "Server error" });
+}
+});
+const ride = new Ride({
+
 pickup: {
 address: pickup.address,
 lat: pickup.lat,
