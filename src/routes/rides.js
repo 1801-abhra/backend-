@@ -6,7 +6,10 @@ const Ride = require("../models/Ride");
 
 router.get("/", async (req, res) => {
 try {
-const rides = await Ride.find().sort({ createdAt: -1 });
+const rides = await Ride.find()
+.populate("driver", "name email")
+.sort({ createdAt: -1 });
+
 res.json(rides);
 } catch (err) {
 res.status(500).json({ message: "Failed to fetch rides" });
