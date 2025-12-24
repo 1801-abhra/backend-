@@ -57,56 +57,33 @@ res.status(500).json({ message: "Ride booking failed" });
 
 router.patch("/:id/status", async (req, res) => {
 try {
-const { id } = req.params;
 const { status, driverId } = req.body;
 
-// 1️⃣ Validate ride id
-if (!mongoose.Types.ObjectId.isValid(id)) {
-return res.status(400).json({ error: "Invalid ride id" });
+if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+return res.status(400).json({ message: "Invalid ride id" });
 }
 
-// 2️⃣ Validate driver id ONLY when accepting
-if (status === "accepted") {
-if (!driverId || !mongoose.Types.ObjectId.isValid(driverId)) {
-return res.status(400).json({ error: "Invalid driver id" });
-}
+if (!mongoose.Types.ObjectId.isValid(driverId)) {
+return res.status(400).json({ message: "Invalid driver id" });
 }
 
-// 3️⃣ Find ride
-const ride = await Ride.findById(id);
+const ride = await Ride.findById(req.params.id);
 if (!ride) {
-return res.status(404).json({ error: "Ride not found" });
+return res.status(404).json({ message: "Ride not found" });
 }
 
-// 4️⃣ Update fields
 ride.status = status;
+ride.driver = driverId;
 
-if (status === "accepted") {
-ride.driver = driverId; // assign driver
-}
-
-// 5️⃣ Save
 await ride.save();
 
-// 6️⃣ Emit live updates
-if (status === "accepted") {
-io.emit("rideAccepted", ride);
-}
-
-if (status === "rejected") {
-io.emit("rideRejected", ride);
-}
-
-res.json({
-message: `Ride ${status}`,
-ride
-});
-
+res.json({ message: "Ride updated successfully", ride });
 } catch (err) {
 console.error("UPDATE RIDE STATUS ERROR:", err);
-res.status(500).json({ error: "Server error" });
+res.status(500).json({ message: "Server error" });
 }
 });
+
 
 
 
