@@ -39,18 +39,33 @@ router.post('/signup', async (req,res)=>{
   res.json({ token, user });
 });
 
-router.post('/login', async (req,res)=>{
-  const { email, password } = req.body;
+router.post("/login", async (req, res) => {
+const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-  if(!user) return res.status(400).json({ error: "Invalid login" });
+const user = await User.findOne({ email });
+if (!user) {
+return res.status(400).json({ error: "Invalid login" });
+}
 
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if(!ok) return res.status(400).json({ error: "Invalid login" });
+const ok = await bcrypt.compare(password, user.passwordHash);
+if (!ok) {
+return res.status(400).json({ error: "Invalid login" });
+}
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+const token = jwt.sign(
+{ id: user._id, role: user.role },
+process.env.JWT_SECRET
+);
 
-  res.json({ token, user });
+res.json({
+token,
+user: {
+id: user._id,
+name: user.name,
+email: user.email,
+role: user.role
+}
+});
 });
 
 module.exports = router;
