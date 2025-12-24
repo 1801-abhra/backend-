@@ -1,14 +1,49 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const RideSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  userEmail: String,
-  pickup: String,
-  dropoff: String,
-  status: { type: String, enum: ['requested','accepted','ontrip','completed','cancelled'], default: 'requested' },
-  driver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  driverEmail: String,
-  createdAt: { type: Date, default: Date.now }
-});
+const rideSchema = new mongoose.Schema(
+{
+student: {
+type: mongoose.Schema.Types.ObjectId,
+ref: "User",
+required: true,
+},
 
-module.exports = mongoose.model('Ride', RideSchema);
+driver: {
+type: mongoose.Schema.Types.ObjectId,
+ref: "User",
+default: null,
+},
+
+pickup: {
+address: { type: String, required: true },
+lat: { type: Number, required: true },
+lng: { type: Number, required: true },
+},
+
+drop: {
+address: { type: String, required: true },
+lat: { type: Number, required: true },
+lng: { type: Number, required: true },
+},
+
+status: {
+type: String,
+enum: ["requested", "accepted", "ongoing", "completed", "cancelled"],
+default: "requested",
+},
+
+fare: {
+type: Number,
+default: 0,
+},
+
+requestedAt: {
+type: Date,
+default: Date.now,
+},
+},
+{ timestamps: true }
+);
+
+module.exports = mongoose.model("Ride", rideSchema);
+
