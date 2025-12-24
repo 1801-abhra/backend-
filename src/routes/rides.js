@@ -55,18 +55,16 @@ res.status(500).json({ message: "Ride booking failed" });
 
 
 router.patch("/:id/status", async (req, res) => {
-try {
-const { status } = req.body;
+const { status, driverId } = req.body;
 
 const ride = await Ride.findByIdAndUpdate(
 req.params.id,
-{ status },
+{
+status,
+driver: status === "accepted" ? driverId : null
+},
 { new: true }
-);
-
-if (!ride) {
-return res.status(404).json({ message: "Ride not found" });
-}
+).populate("driver", "name");
 
 const io = req.app.get("io");
 if (io) {
@@ -74,10 +72,7 @@ io.emit("ride:update", ride);
 }
 
 res.json(ride);
-} catch (error) {
-console.error("Status update error:", error);
-res.status(500).json({ message: "Status update failed" });
-}
 });
+
 
 module.exports = router;
