@@ -46,6 +46,7 @@ function addRide(ride) {
 if (ride.status !== "requested") return;
 
 const div = document.createElement("div");
+  div.id = `ride-${ride._id}`;
 div.style.border = "1px solid #ccc";
 div.style.padding = "10px";
 div.style.marginBottom = "10px";
@@ -64,23 +65,34 @@ document.getElementById("rides").appendChild(div);
 async function updateStatus(id, status) {
 const driverId = localStorage.getItem("userId");
 
-if (!driverId) {
-alert("Driver not logged in");
+try {
+const res = await fetch(`${API_BASE}/api/rides/${id}/status`, {
+method: "PATCH",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+status: status,
+driverId: driverId
+})
+});
+
+const data = await res.json();
+
+if (!res.ok) {
+alert(data.error || "Failed to update ride");
 return;
 }
 
-await fetch(`${API_BASE}/api/rides/${id}/status`, {
-method: "PATCH",
-headers: {
-"Content-Type": "application/json",
-},
-body: JSON.stringify({
-status,
-driverId,
-}),
-});
-
 alert(`Ride ${status}`);
+
+// ✅ REMOVE ride from dashboard immediately
+document.getElementById(`ride-${id}`).remove();
+
+} catch (err) {
+console.error(err);
+alert("Server error");
+}
 }
 
 
