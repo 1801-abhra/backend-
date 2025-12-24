@@ -1,32 +1,36 @@
 const path = require("path");
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const morgan = require('morgan');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const http = require("http");
+const { Server } = require("socket.io");
 
 dotenv.config();
 const app = express();
+const server = http.createServer(app);
 
-app.use(morgan('dev'));
-app.use(bodyParser.json());
-app.use(cors({ origin: process.env.CLIENT_URL || true }));
+const io = new Server(server, {
+cors: { origin: "*" }
+});
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(()=> console.log("MongoDB connected"))
-  .catch(err => console.error("Mongo error:", err));
+app.use(cors());
+app.use(express.json());
 
-app.use('/api/auth', require(path.join(__dirname, 'src/routes/auth')));
-app.use('/api/rides', require(path.join(__dirname, 'src/routes/rides')));
-app.use('/api/users', require(path.join(__dirname, 'src/routes/users')));
-app.use('/api/Emergency', require(path.join(__dirname, 'src/routes/Emergency')));
-app.use('/api/location', require(path.join(__dirname, 'src/routes/location')));
+mongoose.connect(process.env.MONGO_URI)
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error(err));
 
+app.use("/api/auth", require("./src/routes/auth"));
+app.use("/api/rides", require("./src/routes/rides"));
 
-app.use(express.static('../frontend'));
-app.get("/",(req,res) => {
-  res.send("Backend is running successfully"); });
+io.on("connection", (socket) => {
+console.log("Socket connected:", socket.id);
+});
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=> console.log("Backend running on", PORT));
+app.set("io", io);
+
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => {
+console.log("Backend running on", PORT);
+});
