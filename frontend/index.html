@@ -114,144 +114,56 @@
 </div>
 
 <script>
-  const API = "https://YOUR_BACKEND_RENDER_URL"; // CHANGE THIS LATER
-  let token = "";
+const API_BASE = "https://traverse-backend-mvdv.onrender.com";
 
-  function show(role) {
-    document.getElementById("auth").classList.add("hidden");
-    document.getElementById("student").classList.add("hidden");
-    document.getElementById("driver").classList.add("hidden");
-    document.getElementById("admin").classList.add("hidden");
-    document.getElementById(role).classList.remove("hidden");
-  }
+async function signup() {
+const name = document.getElementById("name").value.trim();
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value.trim();
 
-  async function signup() {
-    const res = await fetch(API + "/api/auth/signup", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        name: name.value,
-        email: email.value,
-        password: password.value
-      })
-    });
-    const data = await res.json();
-    document.getElementById("authMsg").innerText = data.error || "Signup successful";
-  }
+if (!name || !email || !password) {
+alert("Please fill all fields");
+return;
+}
 
-  async function login() {
-    const res = await fetch(API + "/api/auth/login", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        email: email.value,
-        password: password.value
-      })
-    });
-    const data = await res.json();
-    if (data.token) {
-      token = data.token;
-      show(data.user.role);
-      if (data.user.role === "student") loadStudent();
-      if (data.user.role === "driver") loadDriver();
-      if (data.user.role === "admin") loadAdmin();
-    } else {
-      authMsg.innerText = data.error;
-    }
-  }
+try {
+const res = await fetch(`${API_BASE}/signup`, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ name, email, password })
+});
 
-  async function requestRide() {
-    await fetch(API + "/api/rides", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({
-        pickup: pickup.value,
-        dropoff: dropoff.value
-      })
-    });
-    loadStudent();
-  }
+const data = await res.json();
+alert(data.message || "Signup successful");
+} catch (err) {
+alert("Signup failed. Try again.");
+}
+}
 
-  async function loadStudent() {
-    const res = await fetch(API + "/api/rides", {
-      headers: {"Authorization": "Bearer " + token}
-    });
-    const rides = await res.json();
-    studentRides.innerHTML = rides.map(r =>
-      `<li>${r.pickup} → ${r.dropoff} (${r.status})</li>`
-    ).join("");
-  }
+async function login() {
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value.trim();
 
-  async function loadDriver() {
-    const res = await fetch(API + "/api/rides", {
-      headers: {"Authorization": "Bearer " + token}
-    });
-    const rides = await res.json();
-    driverRides.innerHTML = rides.map(r =>
-      `<li>${r.pickup} → ${r.dropoff}
-        <button onclick="acceptRide('${r._id}')">Accept</button>
-      </li>`
-    ).join("");
-  }
+if (!email || !password) {
+alert("Please fill all fields");
+return;
+}
 
-  async function acceptRide(id) {
-    await fetch(API + "/api/rides/" + id + "/accept", {
-      method: "POST",
-      headers: {"Authorization": "Bearer " + token}
-    });
-    loadDriver();
-  }
+try {
+const res = await fetch(`${API_BASE}/login`, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ email, password })
+});
 
-  async function emergency() {
-    navigator.geolocation.getCurrentPosition(async pos => {
-      await fetch(API + "/api/emergency/report", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({
-          description: "Emergency",
-          location: {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude
-          }
-        })
-      });
-      alert("Emergency sent to admin");
-    });
-  }
-
-  async function loadAdmin() {
-    const res = await fetch(API + "/api/emergency", {
-      headers: {"Authorization": "Bearer " + token}
-    });
-    const list = await res.json();
-    emergencyList.innerHTML = list.map(e =>
-      `<li>${e.studentEmail} - ${e.status}</li>`
-    ).join("");
-  }
-
-  async function createUser() {
-    await fetch(API + "/api/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({
-        name: uName.value,
-        email: uEmail.value,
-        password: uPass.value,
-        role: uRole.value
-      })
-    });
-    alert("User created");
-  }
+const data = await res.json();
+alert(data.message || "Login successful");
+} catch (err) {
+alert("Login failed. Try again.");
+}
+}
 </script>
+
 
 </body>
 </html>
