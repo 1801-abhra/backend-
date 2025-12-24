@@ -145,8 +145,17 @@ socket.on("ride:update", (ride) => {
 const statusEl = document.getElementById("rideStatus");
 if (!statusEl) return;
 
-statusEl.innerText = `Ride status: ${ride.status.toUpperCase()}`;
-
+statusEl.innerHTML = `
+Ride status: <b>${ride.status.toUpperCase()}</b><br/>
+${ride.driver ? `
+<hr/>
+<b>Driver Details</b><br/>
+Name: ${ride.driver.name || "N/A"}<br/>
+Phone: ${ride.driver.phone || "N/A"}<br/>
+Email: ${ride.driver.email || "N/A"}
+` : ""}
+`;
+});
 if (ride.status === "accepted") {
 statusEl.style.color = "green";
 } else if (ride.status === "rejected") {
