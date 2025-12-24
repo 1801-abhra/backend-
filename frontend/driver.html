@@ -57,17 +57,23 @@ document.getElementById("rides").appendChild(div);
 }
 
 async function updateStatus(id, status) {
+const driverId = localStorage.getItem("userId"); // 👈 STEP 3 CODE
+
 await fetch(`${API_BASE}/api/rides/${id}/status`, {
 method: "PATCH",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ status })
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+status: status,
+driverId: driverId
+})
 });
 
 alert(`Ride ${status}`);
-location.reload();
 }
 
-loadRides();
+
 </script>
 
 </body>
