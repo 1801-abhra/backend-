@@ -70,6 +70,10 @@
     <input id="name" placeholder="Name (signup only)">
     <input id="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
+    <select id="role">
+<option value="student">Student</option>
+<option value="driver">Driver</option>
+</select>
     <button onclick="signup()">Sign Up</button>
     <button onclick="login()">Login</button>
     <p id="authMsg"></p>
@@ -133,7 +137,7 @@ async function signup() {
 const name = document.getElementById("name").value.trim();
 const email = document.getElementById("email").value.trim();
 const password = document.getElementById("password").value.trim();
-
+const role = document.getElementById("role").value;
 if (!name || !email || !password) {
 alert("Please fill all fields");
 return;
@@ -143,7 +147,7 @@ try {
 const res = await fetch(`${API_BASE}/api/auth/signup`, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ name, email, password })
+body: JSON.stringify({ name, email, password, role })
 });
 
 const data = await res.json();
@@ -170,7 +174,14 @@ body: JSON.stringify({ email, password })
 });
 
 const data = await res.json();
-alert(data.message || "Login successful");
+
+localStorage.setItem("role", data.user.role);
+
+if (data.user.role === "driver") {
+window.location.href = "/driver.html";
+} else {
+alert("Login successful");
+}
 } catch (err) {
 alert("Login failed. Try again.");
 }
