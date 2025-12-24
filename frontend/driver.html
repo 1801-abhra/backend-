@@ -13,20 +13,21 @@
 
 <script>
 const driverId = localStorage.getItem("userId");
+const role = localStorage.getItem("role");
 
-if (!driverId) {
-alert("Session expired. Please login again.");
+if (!driverId || driverId === "undefined") {
+alert("Invalid session. Please login again.");
+localStorage.clear();
 window.location.href = "/index.html";
 }
-const API_BASE = "https://traverse-backend-mvdv.onrender.com";
-
-const role = localStorage.getItem("role");
 
 if (role !== "driver") {
 alert("Access denied. Drivers only.");
+localStorage.clear();
 window.location.href = "/index.html";
 }
 
+const API_BASE = "https://traverse-backend-mvdv.onrender.com";
 const socket = io(API_BASE);
 
 socket.on("connect", () => {
