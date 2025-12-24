@@ -112,6 +112,19 @@
   </div>
 
 </div>
+  <hr />
+
+<h2>Book a Taxi</h2>
+
+<input type="text" id="pickupAddress" placeholder="Pickup Location" />
+<br /><br />
+
+<input type="text" id="dropAddress" placeholder="Drop Location" />
+<br /><br />
+
+<button onclick="bookRide()">Book Ride</button>
+
+<p id="rideStatus"></p>
 
 <script>
 const API_BASE = "https://traverse-backend-mvdv.onrender.com";
@@ -160,6 +173,45 @@ const data = await res.json();
 alert(data.message || "Login successful");
 } catch (err) {
 alert("Login failed. Try again.");
+}
+}
+async function bookRide() {
+const pickup = document.getElementById("pickupAddress").value.trim();
+const drop = document.getElementById("dropAddress").value.trim();
+
+if (!pickup || !drop) {
+alert("Please enter pickup and drop locations");
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/api/rides/book`, {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+pickup: {
+address: pickup,
+lat: 30.516,
+lng: 76.659
+},
+drop: {
+address: drop,
+lat: 30.518,
+lng: 76.662
+}
+})
+});
+
+const data = await res.json();
+
+document.getElementById("rideStatus").innerText =
+data.message || "Ride booked successfully";
+
+} catch (err) {
+console.error(err);
+alert("Failed to book ride");
 }
 }
 </script>
