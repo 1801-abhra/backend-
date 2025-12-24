@@ -173,19 +173,35 @@ headers: { "Content-Type": "application/json" },
 body: JSON.stringify({ email, password })
 });
 
+// ✅ IMPORTANT CHECK
+if (!res.ok) {
+const err = await res.json();
+alert(err.error || "Login failed");
+return;
+}
+
 const data = await res.json();
 
+// ✅ SAVE SESSION DATA
+localStorage.setItem("token", data.token);
 localStorage.setItem("role", data.user.role);
+localStorage.setItem("userId", data.user.id);
 
+// ✅ ROLE-BASED REDIRECT
 if (data.user.role === "driver") {
 window.location.href = "/driver.html";
 } else {
+document.getElementById("auth").style.display = "none";
+document.getElementById("student").classList.remove("hidden");
 alert("Login successful");
 }
+
 } catch (err) {
 alert("Login failed. Try again.");
+console.error(err);
 }
 }
+
 async function bookRide() {
 const pickup = document.getElementById("pickupAddress").value.trim();
 const drop = document.getElementById("dropAddress").value.trim();
