@@ -74,8 +74,8 @@
 <option value="student">Student</option>
 <option value="driver">Driver</option>
 </select>
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="login()">Login</button>
+    <button type="button" onclick="signup()">Sign Up</button>
+    <button type= "button" onclick="login()">Login</button>
     <p id="authMsg"></p>
   </div>
 
@@ -196,8 +196,10 @@ async function login() {
 const email = document.getElementById("email").value.trim();
 const password = document.getElementById("password").value.trim();
 
+console.log("LOGIN CLICKED", email);
+
 if (!email || !password) {
-alert("Please fill all fields");
+document.getElementById("loginError").innerText = "Fill all fields";
 return;
 }
 
@@ -209,22 +211,35 @@ body: JSON.stringify({ email, password })
 });
 
 const data = await res.json();
-if (!res.ok) return alert(data.error || "Login failed");
+console.log("LOGIN RESPONSE", data);
+
+const msg = document.getElementById("authMsg");
+
+if (!res.ok) {
+msg.innerText = data.error || "Login failed";
+msg.style.color = "red";
+return;
+}
+
+// ✅ SAFE RESET
+localStorage.clear();
 
 localStorage.setItem("token", data.token);
 localStorage.setItem("role", data.user.role);
-localStorage.setItem("userId", data.user._id);
 
 if (data.user.role === "driver") {
-window.location.href = "/driver.html";
-} else {
+localStorage.setItem("driverId", data.user._id);
+window.location.replace("/driver.html");
+return;
+}
+
+// student
 document.getElementById("auth").style.display = "none";
 document.getElementById("student").classList.remove("hidden");
-alert("Login successful");
-}
+
 } catch (err) {
-alert("Login error");
-console.error(err);
+console.error("LOGIN JS ERROR", err);
+document.getElementById("loginError").innerText = "Network error";
 }
 }
 
