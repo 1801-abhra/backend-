@@ -78,9 +78,18 @@ return res.status(404).json({ message: "Ride not found" });
 ride.status = status;
 ride.driver = driverId;
 
-await ride.save();
+const populatedRide = await Ride.findById(ride._id)
+.populate("driver", "name email phone");
 
-res.json({ message: "Ride updated successfully", ride });
+const io = req.app.get("io");
+if (io) {
+io.emit("ride:update", populatedRide);
+}
+
+res.json({
+message: "Ride updated successfully",
+ride: populatedRide
+});
 } catch (err) {
 console.error("UPDATE RIDE STATUS ERROR:", err);
 res.status(500).json({ message: "Server error" });
