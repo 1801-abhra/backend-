@@ -130,38 +130,10 @@
 
 <p id="rideStatus"></p>
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
 <script>
 /* ================= CONFIG ================= */
 const API_BASE = "https://traverse-backend-mvdv.onrender.com";
-const socket = io(API_BASE);
-
-/* ================= SOCKET LISTENERS ================= */
-socket.on("connect", () => {
-console.log("Student socket connected:", socket.id);
-});
-
-socket.on("ride:update", (ride) => {
-const statusEl = document.getElementById("rideStatus");
-if (!statusEl) return;
-
-statusEl.innerHTML = `
-Ride status: <b>${ride.status.toUpperCase()}</b><br/>
-${ride.driver ? `
-<hr/>
-<b>Driver Details</b><br/>
-Name: ${ride.driver.name || "N/A"}<br/>
-Phone: ${ride.driver.phone || "N/A"}<br/>
-Email: ${ride.driver.email || "N/A"}
-` : ""}
-`;
-});
-if (ride.status === "accepted") {
-statusEl.style.color = "green";
-} else if (ride.status === "rejected") {
-statusEl.style.color = "red";
-}
-});
 
 /* ================= AUTH ================= */
 async function signup() {
@@ -281,6 +253,10 @@ alert("Ride booking error");
 console.error(err);
 }
 }
+  window.signup = signup;
+window.login = login;
+window.bookRide = bookRide;
+
 </script>
 
 
