@@ -36,14 +36,19 @@ console.log("Driver connected:", socket.id);
 socket.on("ride:new", (ride) => {
 addRide(ride);
 });
-
 async function loadRides() {
+try {
 const res = await fetch(`${API_BASE}/api/rides`);
 const rides = await res.json();
 rides.forEach(addRide);
+} catch (err) {
+console.error("Failed to load rides", err);
 }
+}
+
+loadRides();
+
 function addRide(ride) {
-if (ride.status !== "requested") return;
 
 const div = document.createElement("div");
   div.id = `ride-${ride._id}`;
@@ -56,7 +61,7 @@ div.innerHTML = `
 <p><b>Drop:</b> ${ride.drop.address}</p>
 <p><b>Status:</b> ${ride.status}</p>
 <button onclick="updateStatus('${ride._id}', 'accepted')">Accept</button>
-<button onclick="updateStatus('${ride._id}', 'rejected')">Reject</button>
+<button onclick="updateStatus('${ride._id}', 'rejected0')">Reject</button>
 `;
 
 document.getElementById("rides").appendChild(div);
