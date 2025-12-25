@@ -15,11 +15,13 @@
 const driverId = localStorage.getItem("userid");
 const role = localStorage.getItem("role");
 
-if (!driverId || driverId === "undefined") {
-alert("Invalid session. Please login again.");
-localStorage.clear();
+console.log("Driver session check:", { driverId, role });
+
+if (!driverId) {
+alert("Please login again");
 window.location.href = "/index.html";
 }
+
 
 if (role !== "driver") {
 alert("Access denied. Drivers only.");
