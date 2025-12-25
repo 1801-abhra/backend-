@@ -12,22 +12,19 @@
 <div id="rides"></div>
 
 <script>
-const driverId = localStorage.getItem("userid");
+const driverId = localStorage.getItem("userId");
 const role = localStorage.getItem("role");
 
 console.log("Driver session check:", { driverId, role });
 
-if (!driverId) {
-alert("Please login again");
-window.location.href = "/index.html";
-}
 
 
-if (role !== "driver") {
-alert("Access denied. Drivers only.");
-localStorage.clear();
-window.location.href = "/index.html";
+
+if (!role || role !== "driver") {
+console.warn("Invalid role for driver dashboard:", role);
+return;
 }
+
 
 const API_BASE = "https://traverse-backend-mvdv.onrender.com";
 const socket = io(API_BASE);
