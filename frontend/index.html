@@ -147,7 +147,8 @@ socket.on("ride:update", (updatedRide) => {
 console.log("📡 Ride update received:", updatedRide);
 
 if (!window.currentRideId) return;
-if (updatedRide._id !== window.currentRideId) return;
+if (updatedRide._id.toString() !== window.currentRideId) return;
+
 
 const statusEl = document.getElementById("rideStatus");
 if (statusEl) {
