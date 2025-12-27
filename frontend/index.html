@@ -198,9 +198,9 @@ localStorage.clear();
 
 localStorage.setItem("token", data.token);
 localStorage.setItem("role", data.user.role);
+localStorage.setItem("userId", data.user._id);
 
 if (data.user.role === "driver") {
-localStorage.setItem("driverId", data.user._id);
 window.location.replace("/driver.html");
 return;
 }
