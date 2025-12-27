@@ -32,10 +32,11 @@ const socket = io(API_BASE);
 socket.on("connect", () => {
 console.log("Driver connected:", socket.id);
 });
-
 socket.on("ride:new", (ride) => {
+console.log("🚕 New ride received via socket:", ride);
 addRide(ride);
 });
+
 async function loadRides() {
 try {
 const res = await fetch(`${API_BASE}/api/rides`);
