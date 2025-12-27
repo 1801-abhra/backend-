@@ -130,10 +130,30 @@
 
 <p id="rideStatus"></p>
 
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
 
 <script>
 /* ================= CONFIG ================= */
 const API_BASE = "https://traverse-backend-mvdv.onrender.com";
+/ ================= SOCKET CONNECTION (STUDENT) =================
+const socket = io(API_BASE);
+
+socket.on("connect", () => {
+console.log("🟢 Student socket connected:", socket.id);
+});
+// ================= STUDENT LIVE RIDE STATUS =================
+socket.on("ride:update", (updatedRide) => {
+console.log("📡 Ride update received:", updatedRide);
+
+if (!window.currentRideId) return;
+if (updatedRide._id !== window.currentRideId) return;
+
+const statusEl = document.getElementById("rideStatus");
+if (statusEl) {
+statusEl.innerText = updatedRide.status;
+}
+});
 
 /* ================= AUTH ================= */
 async function signup() {
@@ -245,7 +265,7 @@ lng: 76.662
 
 const data = await res.json();
 if (!res.ok) return alert(data.message || "Booking failed");
-
+window.currentRideId = data.ride._id;
 document.getElementById("rideStatus").innerText =
 "Ride status: REQUESTED";
 } catch (err) {
@@ -258,7 +278,6 @@ window.login = login;
 window.bookRide = bookRide;
 
 </script>
-
 
 </body>
 </html>
