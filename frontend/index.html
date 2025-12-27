@@ -154,7 +154,18 @@ if (statusEl) {
 statusEl.innerText = updatedRide.status;
 }
 });
+socket.on("ride:new", (newRide) => {
+console.log("🆕 Ride created:", newRide);
 
+if (!window.currentRideId) {
+window.currentRideId = newRide._id;
+}
+
+const statusEl = document.getElementById("rideStatus");
+if (statusEl) {
+statusEl.innerText = "Ride status: REQUESTED";
+}
+});
 /* ================= AUTH ================= */
 async function signup() {
 const name = document.getElementById("name").value.trim();
