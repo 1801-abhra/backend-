@@ -44,8 +44,10 @@ await ride.save();
 
 const io = req.app.get("io");
 if (io) {
+console.log("🚕 Emitting ride:new", ride._id);
 io.emit("ride:new", ride);
 }
+
 
 res.status(201).json({
 message: "Ride booked successfully",
