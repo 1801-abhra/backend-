@@ -50,7 +50,10 @@ console.error("Failed to load rides", err);
 loadRides();
 
 function addRide(ride) {
-
+if (!ride || !ride.pickup || !ride.drop) {
+console.warn("Invalid ride object skipped:", ride);
+return;
+}
 const div = document.createElement("div");
   div.id = `ride-${ride._id}`;
 div.style.border = "1px solid #ccc";
