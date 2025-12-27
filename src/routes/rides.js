@@ -79,6 +79,7 @@ return res.status(404).json({ message: "Ride not found" });
 
 ride.status = status;
 ride.driver = driverId;
+  await ride.save();
 
 const populatedRide = await Ride.findById(ride._id)
 .populate("driver", "name email phone");
