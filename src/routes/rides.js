@@ -86,9 +86,14 @@ const populatedRide = await Ride.findById(ride._id)
 
 const io = req.app.get("io");
 if (io) {
+console.log(
+"🚀 SOCKET EMIT ride:update",
+populatedRide._id.toString(),
+populatedRide.status
+);
+
 io.emit("ride:update", populatedRide);
 }
-
 res.json({
 message: "Ride updated successfully",
 ride: populatedRide
