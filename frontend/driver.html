@@ -70,7 +70,7 @@ document.getElementById("rides").appendChild(div);
 
 async function updateStatus(id, status) {
 const driverId = localStorage.getItem("userId");
-
+console.log("DriverId being sent:",driverId);
 try {
 const res = await fetch(`${API_BASE}/api/rides/${id}/status`, {
 method: "PATCH",
