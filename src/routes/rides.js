@@ -81,7 +81,8 @@ ride.status = status;
 ride.driver = driverId;
 
 const populatedRide = await Ride.findById(ride._id)
-.populate("driver", "name email phone");
+.populate("driver", "name email phone")
+.populate("student", "_id name email");
 
 const io = req.app.get("io");
 if (io) {
