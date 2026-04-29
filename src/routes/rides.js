@@ -76,11 +76,9 @@ const ride = await Ride.findById(req.params.id);
 if (!ride) {
 return res.status(404).json({ message: "Ride not found" });
 }
-
-ride.status = status || "ACCEPTED";
+ride.status = status.toUpperCase();
 ride.driver = driverId;
-
-  ride.status = status.toUpperCase();   // normalize
+  // normalize
 await ride.save();                    // ⭐ THIS IS THE MAIN FIX
 
 const populatedRide = await Ride.findById(ride._id)
