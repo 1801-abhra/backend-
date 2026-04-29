@@ -77,8 +77,11 @@ if (!ride) {
 return res.status(404).json({ message: "Ride not found" });
 }
 
-ride.status = status;
+ride.status = status || "ACCEPTED";
 ride.driver = driverId;
+
+  ride.status = status.toUpperCase();   // normalize
+await ride.save();                    // ⭐ THIS IS THE MAIN FIX
 
 const populatedRide = await Ride.findById(ride._id)
 .populate("driver", "name email phone")
