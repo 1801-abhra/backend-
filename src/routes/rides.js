@@ -76,11 +76,14 @@ const ride = await Ride.findById(req.params.id);
 if (!ride) {
 return res.status(404).json({ message: "Ride not found" });
 }
+if (!status) {
+  return res.status(400).json({ message: "Status is required" });
+}
+
 ride.status = status.toUpperCase();
 ride.driver = driverId;
-  // normalize
-await ride.save();                    // ⭐ THIS IS THE MAIN FIX
 
+await ride.save();
 const populatedRide = await Ride.findById(ride._id)
 .populate("driver", "name email phone")
 .populate("student", "_id name email");
