@@ -11,9 +11,11 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-cors: {
-origin: "*",
-},
+  cors: {
+    origin: "*",   // or your Vercel URL
+    methods: ["GET", "POST", "PATCH"],
+  },
+  transports: ["websocket", "polling"],  // ⭐ THIS IS THE KEY FIX
 });
 
 io.on("connection", (socket) => {
